@@ -1,1 +1,0 @@
-# Using a static site generator for a data platform
