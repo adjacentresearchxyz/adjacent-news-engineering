@@ -72,3 +72,11 @@ These messages are sent on a cron job by our `producer` to a queue. Then a `cons
 Processing 1.2k markets a minute is ok but you have to remember that is for free. Cloudflare pricing is $0.02 / 1m extra CPU time. We could double our throughput for $0.60.
 
 > Note: We built this over the last few weeks (time stamped 7/24/2024) and are in the process of ingesting markets into the database. 
+
+# Edit: 8.9.24 
+Re-architecting this to look more like ![etl-pipeline](../images/new-etl.png). This notablly adds 
+- Storing of raw market data in R2
+- Using [event notifications](https://developers.cloudflare.com/r2/buckets/event-notifications/) to add markets to a queue rather than manually adding to a queue
+- Reducing to using a single queue rather than one for markets and trades 
+
+The primary reason for switching to this was the sheer number of markets and trades and that cloudflare workers are limited to 1k subrequests (external API calls) per invocation. So rather than exceeding this, we can simply batch the tickers into a single queue to have market data and trade processing happen together.
